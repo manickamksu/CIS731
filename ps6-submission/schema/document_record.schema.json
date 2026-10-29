@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cis731.example/ps6/schema/document_record.schema.json",
+  "title": "PS6 Document (input to admit_document)",
+  "description": "One source song text from the MP 3 provenance manifest. Only documents that pass admit_document may own vectors.",
+  "type": "object",
+  "required": ["doc_id", "title", "source_uri", "source_hash", "license_class", "corpus_type", "release_year", "text"],
+  "properties": {
+    "doc_id":        { "$ref": "vector_record.schema.json#/$defs/doc_id" },
+    "title":         { "type": "string", "minLength": 1 },
+    "creators":      { "type": "array", "items": { "type": "string" } },
+    "source_uri":    { "type": "string", "format": "uri" },
+    "source_hash":   { "$ref": "vector_record.schema.json#/$defs/sha256" },
+    "license_class": { "$ref": "vector_record.schema.json#/$defs/license_class" },
+    "corpus_type":   { "$ref": "vector_record.schema.json#/$defs/corpus_type" },
+    "release_year":  { "type": "integer", "minimum": 1500, "maximum": 2100 },
+    "text":          { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": false
+}

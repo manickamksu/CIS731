@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cis731.example/ps6/schema/vector_record.schema.json",
+  "title": "PS6 VectorRecord (provenance-bearing, lyrics corpus, VDB track)",
+  "description": "One embedded chunk. Extends the MP 5 CorpusChunk unchanged (allOf) and adds identity, provenance, trope, and embedding fields. Cross-record rules (no orphan vectors, one vector per chunk_id) cannot be expressed in JSON Schema and are enforced by the deal contracts in contracts.py.",
+  "type": "object",
+  "allOf": [
+    { "$ref": "mp5_corpus_chunk.schema.json" },
+    {
+      "if":   { "properties": { "corpus_type": { "const": "asr_transcript" } }, "required": ["corpus_type"] },
+      "then": { "required": ["broadcast_ts"], "not": { "required": ["release_year"] } },
+      "else": { "required": ["release_year"], "not": { "required": ["broadcast_ts"] } }
+    }
+  ],
+  "required": [
+    "chunk_id", "doc_id", "faiss_id", "source_hash", "license_class", "corpus_type",
+    "trope_ids", "embedding_model", "embedding_dim", "vector", "created_ts",
+    "chunking", "provenance_verified"
+  ],
+  "properties": {
+    "chunk_id": {
+      "description": "Stable chunk identity: '<doc_id>#c<4-digit ordinal>'. Equals MP 5 record_id.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+#c[0-9]{4}$"
+    },
+    "doc_id": {
+      "description": "Parent document identity. Equals MP 5 source_id. Must reference an admitted document (NoOrphanEmbeddings).",
+      "$ref": "#/$defs/doc_id"
+    },
+    "faiss_id": {
+      "description": "int64 key used inside faiss.IndexIDMap2: first 63 bits of SHA-256(chunk_id).",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "source_hash":   { "$ref": "#/$defs/sha256" },
+    "license_class": { "$ref": "#/$defs/license_class" },
+    "corpus_type":   { "$ref": "#/$defs/corpus_type" },
+    "release_year":  { "type": "integer", "minimum": 1500, "maximum": 2100 },
+    "broadcast_ts":  { "type": "string", "format": "date-time" },
+    "trope_ids": {
+      "description": "Leaf tropes from the PS 6 lyrics trope ontology. Empty until labelled (MP 7 / MP 9).",
+      "type": "array",
+      "items": { "$ref": "#/$defs/trope_id" },
+      "uniqueItems": true
+    },
+    "embedding_model": {
+      "description": "Model id pinned to a revision hash, e.g. sentence-transformers/all-MiniLM-L6-v2@<commit>.",
+      "type": "string",
+      "pattern": "^[^@\\s]+@[0-9a-f]{7,40}$"
+    },
+    "embedding_dim": { "const": 384 },
+    "vector": {
+      "description": "L2-normalised embedding (unit norm checked by contract, not schema).",
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 384,
+      "maxItems": 384
+    },
+    "created_ts": { "type": "string", "format": "date-time" },
+    "chunking": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "unit", "ordinal", "char_start", "char_end", "n_tokens", "repeat_count"],
+      "properties": {
+        "strategy":     { "enum": ["fixed_window", "sentence_boundary", "structure_aware"] },
+        "unit":         { "enum": ["window", "line_group", "stanza", "chorus"] },
+        "ordinal":      { "type": "integer", "minimum": 0, "maximum": 9999 },
+        "char_start":   { "type": "integer", "minimum": 0 },
+        "char_end":     { "type": "integer", "minimum": 1 },
+        "n_tokens":     { "type": "integer", "minimum": 1, "maximum": 128, "description": "Word-piece count; 128 is the chunk-length cap derived in the report." },
+        "repeat_count": { "type": "integer", "minimum": 1, "description": "How many times this exact stanza (e.g. a chorus) occurs in the song; repeats are stored once." }
+      }
+    },
+    "provenance_verified": { "const": true }
+  },
+  "unevaluatedProperties": false,
+
+  "$defs": {
+    "doc_id":        { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" },
+    "sha256":        { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "license_class": { "enum": ["public_domain", "instructor_provided"] },
+    "corpus_type":   { "enum": ["lyrics", "ya_literature", "xianxia_wuxia", "asr_transcript"] },
+    "trope_id":      { "type": "string", "pattern": "^trope:[a-z]+(\\.[a-z_]+)+$" }
+  }
+}
