@@ -1,5 +1,5 @@
 # MP 7 Report: Few-shot prediction of tetracycline resistance in NARMS *E. coli*
-Manickam Dhandapani · CIS 731 (solo) · Git tag `mp7-submission`
+Manickam Dhandapani · https://github.com/manickamksu/CIS731/tree/main/mp7-submission · Git tag `mp7-submission`
 
 ## Part 1A. Protocol and label space
 `protocol.md` was committed in `{{PROTOCOL_COMMIT}}`, before the first results commit `{{RESULTS_COMMIT}}`.
