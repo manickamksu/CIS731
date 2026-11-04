@@ -2,7 +2,6 @@
 Manickam Dhandapani · https://github.com/manickamksu/CIS731/tree/main/mp7-submission · Git tag `mp7-submission`
 
 ## Part 1A. Protocol and label space
-`protocol.md` was committed in `{{PROTOCOL_COMMIT}}`, before the first results commit `{{RESULTS_COMMIT}}`.
 
 **Task and labels.** Predict the tetracycline phenotype of a food-animal *E. coli* isolate. Gold labels are laboratory results (`TET SIR`): MIC ≤ 4 µg/mL = susceptible, ≥ 16 = resistant. Intermediates (MIC 8; n = 341) and missing results (n = 66) are excluded. Labels are direct lab measurements, not inferred labels.
 
